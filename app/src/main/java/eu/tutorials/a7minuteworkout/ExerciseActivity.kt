@@ -3,12 +3,15 @@ package eu.tutorials.a7minuteworkout
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import eu.tutorials.a7minuteworkout.databinding.ActivityExerciseBinding
 import eu.tutorials.a7minuteworkout.databinding.ActivityMainBinding
+import java.util.Locale
 
-class ExerciseActivity : AppCompatActivity() {
+class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private var binding: ActivityExerciseBinding? = null
 
@@ -20,6 +23,8 @@ class ExerciseActivity : AppCompatActivity() {
 
     private var exerciseList: ArrayList<Exercise>? = null
     private var currExercisePos = -1
+
+    private var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +38,9 @@ class ExerciseActivity : AppCompatActivity() {
         }
         // assign list of exercises
         exerciseList = Constants.defaultExerciseList()
+
+        // text to speech
+        tts = TextToSpeech(this, this)
 
         binding?.toolbar?.setNavigationOnClickListener {
             onBackPressed()
@@ -82,6 +90,11 @@ class ExerciseActivity : AppCompatActivity() {
             exerciseTimer?.cancel()
             exerciseProgress = 0
         }
+        // shut down text to speech when activity is destroyed
+        if (tts != null) {
+            tts!!.stop()
+            tts!!.shutdown()
+        }
         binding = null
     }
 
@@ -97,6 +110,8 @@ class ExerciseActivity : AppCompatActivity() {
             exerciseTimer?.cancel()
             exerciseProgress = 0
         }
+        speakOut(exerciseList!![currExercisePos].getName())
+
         binding?.exerciseImage?.setImageResource(exerciseList!![currExercisePos].getIMG())
         binding?.tvExerciseName?.text = exerciseList!![currExercisePos].getName()
         setExerciseProgressBar()
@@ -118,4 +133,19 @@ class ExerciseActivity : AppCompatActivity() {
             }
         }.start()
     }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            val result = tts?.setLanguage(Locale.US)
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED)
+                Log.e("TTS", "The language specified is not supported...")
+            else
+                Log.e("TTS", "Initialization failed...")
+        }
+    }
+
+    private fun speakOut(text: String) {
+        tts!!.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+    }
+
 }
