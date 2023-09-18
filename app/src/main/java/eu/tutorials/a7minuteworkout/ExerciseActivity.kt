@@ -1,5 +1,7 @@
 package eu.tutorials.a7minuteworkout
 
+import android.media.MediaPlayer
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -7,6 +9,7 @@ import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import eu.tutorials.a7minuteworkout.databinding.ActivityExerciseBinding
 import eu.tutorials.a7minuteworkout.databinding.ActivityMainBinding
 import java.util.Locale
@@ -25,6 +28,9 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private var currExercisePos = -1
 
     private var tts: TextToSpeech? = null
+    private var player: MediaPlayer? = null
+
+    private var exerciseAdapter: ExerciseStatusAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,9 +53,25 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
         setUpRestView()
+        setUpExerciseStatusRecyclerView()
+    }
+
+    private fun setUpExerciseStatusRecyclerView() {
+        binding?.rvExerciseStatus?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        exerciseAdapter = ExerciseStatusAdapter(exerciseList!!)
+        binding?.rvExerciseStatus?.adapter = exerciseAdapter
     }
 
     private fun setUpRestView() {
+        try {
+            val soundURI = Uri.parse("android.resource://eu.tutorials.a7minuteworkout/"  + R.raw.press_start)
+            player = MediaPlayer.create(applicationContext, soundURI)
+            player?.isLooping = false
+            player?.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         binding?.flRestProgress?.visibility = View.VISIBLE
         binding?.tvTitle?.visibility = View.VISIBLE
         binding?.tvExerciseName?.visibility = View.INVISIBLE
@@ -95,6 +117,10 @@ class ExerciseActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             tts!!.stop()
             tts!!.shutdown()
         }
+
+        if (player != null)
+            player!!.stop()
+
         binding = null
     }
 
