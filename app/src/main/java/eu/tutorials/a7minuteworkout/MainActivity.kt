@@ -16,10 +16,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
-        // setting variables using root-binding
+        // setting up start btn using root binding
         binding?.startBtn?.setOnClickListener {
             Toast.makeText(this@MainActivity, "Here we go!", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, ExerciseActivity::class.java)
+            startActivity(intent)
+        }
+        // setting up bmi calculator btn
+        binding?.bmiBtn?.setOnClickListener {
+            val intent = Intent(this, BMIActivity::class.java)
             startActivity(intent)
         }
 

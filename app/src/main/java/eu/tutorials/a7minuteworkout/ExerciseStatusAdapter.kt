@@ -1,7 +1,9 @@
 package eu.tutorials.a7minuteworkout
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import eu.tutorials.a7minuteworkout.databinding.ItemExerciseStatusBinding
 
@@ -23,5 +25,20 @@ class ExerciseStatusAdapter(val items: ArrayList<Exercise>): RecyclerView.Adapte
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val model: Exercise = items[position]
         holder.tvItem.text = model.getID().toString()
+
+        when {
+            model.getIsSelected() -> {
+                holder.tvItem.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.item_circular_thin_accent_border)
+                holder.tvItem.setTextColor(Color.parseColor("#212121"))
+            }
+            model.getIsCompleted() -> {
+                holder.tvItem.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.item_circular_color_accent_bg)
+                holder.tvItem.setTextColor(Color.parseColor("#FFFFFF"))
+            }
+            else -> {
+                holder.tvItem.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.item_circular_color_grey_bg)
+                holder.tvItem.setTextColor(Color.parseColor("#212121"))
+            }
+        }
     }
 }
